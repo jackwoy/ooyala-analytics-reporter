@@ -1,5 +1,5 @@
 require 'optparse'
-require './lib/pull-analytics-from-live'
+require './lib/analyticstojson'
 
 #Acquire command line optionsoptions[:secret]
 options = {}
