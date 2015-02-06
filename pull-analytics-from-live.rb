@@ -4,14 +4,6 @@ require 'date'
 API_KEY="YOUR_KEY_HERE"
 SECRET="YOUR_SECRET_HERE"
 
-#
-# Pull all analytics data into local storage
-#
-
-# If customer wants stats between day X and day Y, enter Y+1 into endDate. Our analytics are quirky.
-startDate = DateTime.new(2015,1,19)
-endDate = DateTime.new(2015,1,26)
-
 def apiRequestWithSig(method, uri, pageToken)
 	t = Time.now
 	expires = Time.local(t.year, t.mon, t.day, t.hour + 1).to_i
@@ -64,10 +56,17 @@ def getPages(url)
 	return merged_hash
 end
 
-url = "/v2/analytics/reports/account/performance/videos/2015-01-19...2015-01-26"
-json_hash = getPages(url)
-
-File.open("output/analytics_results.json", "w") do |outfile|
-	outfile.write(JSON.pretty_generate(json_hash))
-	outfile.close
+def runReport(fromDateString, toDateString)	
+	fromDate = Date.parse(fromDateString)
+	toDate = Date.parse(toDateString)
+	# If customer wants stats between day X and day Y, we need to set an end date of Y+1. Our analytics are quirky.
+	url = "/v2/analytics/reports/account/performance/videos/%{from}...%{to}" % { from: fromDate.to_s, to: (toDate+1).to_s }
+	puts url
+	json_hash = getPages(url)
+	File.open("output/analytics_results.json", "w") do |outfile|
+		outfile.write(JSON.pretty_generate(json_hash))
+		outfile.close
+	end
 end
+
+runReport("2015-01-02","2015-01-04")
