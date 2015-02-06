@@ -1,6 +1,8 @@
 require 'optparse'
 require 'yaml'
 require './lib/analyticstojson'
+require 'date'
+require './lib/analyticsjsontocsv'
 
 #Acquire command line optionsoptions[:secret]
 options = {}
@@ -31,7 +33,20 @@ elsif !options.has_key?(:to_date)
   puts "To Date is required"
   exit(1)
 end
-
+jsonFilename = "output/analytics_results_%{from}-to-%{to}.json" % { from:options[:from_date], to:options[:to_date] }
+csvFilename = "output/csv_analytics_results_%{from}-to-%{to}.csv" % { from:options[:from_date], to:options[:to_date] }
 config_vars = YAML.load_file('config.yaml')
-instance = AnalyticsToJSON.new(config_vars['api_key'],config_vars['api_secret'])
-instance.runReport(options[:from_date],options[:to_date])
+
+analytics = AnalyticsToJSON.new(config_vars['api_key'],config_vars['api_secret'])
+puts "Generating JSON"
+analytics.runReport(options[:from_date],options[:to_date], jsonFilename)
+
+from = Date.parse(options[:from_date])
+to = Date.parse(options[:to_date])
+
+daysDifference = to - from
+
+csvOut = AnalyticsJSONtoCSV.new
+puts "Parsing to CSV"
+csvOut.csvFromFile(jsonFilename,csvFilename,daysDifference.to_i+1)
+puts "Done!"

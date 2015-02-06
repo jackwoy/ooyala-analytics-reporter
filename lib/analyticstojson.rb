@@ -79,7 +79,7 @@ class AnalyticsToJSON
 		# If customer wants stats between day X and day Y, we need to set an end date of Y+1. Our analytics are quirky.
 		url = "/v2/analytics/reports/account/performance/videos/%{from}...%{to}" % { from: fromDate.to_s, to: (toDate+1).to_s }
 		json_hash = getPages(url)
-		File.open("output/%{filename}" % {filename: outFileName}, "w") do |outfile|
+		File.open(outFileName, "w") do |outfile|
 			outfile.write(JSON.pretty_generate(json_hash))
 			outfile.close
 		end
