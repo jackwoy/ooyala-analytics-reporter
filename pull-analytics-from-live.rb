@@ -67,7 +67,7 @@ end
 url = "/v2/analytics/reports/account/performance/videos/2015-01-19...2015-01-26"
 json_hash = getPages(url)
 
-File.open("analytics_results.json", "w") do |outfile|
+File.open("output/analytics_results.json", "w") do |outfile|
 	outfile.write(JSON.pretty_generate(json_hash))
 	outfile.close
 end
