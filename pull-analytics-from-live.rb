@@ -30,23 +30,44 @@ def apiRequestWithSig(method, uri, pageToken)
 	return response
 end
 
+# Cheers, Phil.
+def mergeHashes(source_hash, target_hash)
+source_hash.each { |key, value|
+   if target_hash.has_key?(key)
+       target_hash[key] = target_hash[key] + value
+   elsif
+       target_hash[key] = value
+   end
+}
+end
+
+def getPage(url, pageToken)
+	response = apiRequestWithSig("GET", url, pageToken)
+	return response
+end
+
+def getPages(url)
+	merged_hash = nil
+	next_token = nil
+	begin
+		# Make request, get response
+		response = getPage(url, next_token)
+		response_hash = JSON.parse(response)
+		# Set next_token
+		next_token = response_hash["next_page_token"]
+		if merged_hash == nil
+			merged_hash = response_hash
+		else
+			mergeHashes(response_hash,merged_hash)
+		end
+	end until next_token == nil
+	return merged_hash
+end
+
 url = "/v2/analytics/reports/account/performance/videos/2015-01-19...2015-01-26"
-firstResponse = apiRequestWithSig("GET", url, nil)
+json_hash = getPages(url)
 
-json_response = JSON.parse(firstResponse)
-File.open("testfile.json", "w") do |outfile|
-	outfile.write(firstResponse)
+File.open("analytics_results.json", "w") do |outfile|
+	outfile.write(JSON.pretty_generate(json_hash))
 	outfile.close
 end
-
-next_token = json_response["next_page_token"]
-
-secondResponse = apiRequestWithSig("GET", url, next_token)
-
-json_response = JSON.parse(secondResponse)
-File.open("testfile2.json", "w") do |outfile|
-	outfile.write(secondResponse)
-	outfile.close
-end
-
-puts "Done!"
