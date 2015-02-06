@@ -1,21 +1,23 @@
-require './ooyala_api.rb'
+require './lib/ooyala_api.rb'
 require 'date'
 
-API_KEY="YOUR_KEY_HERE"
-SECRET="YOUR_SECRET_HERE"
-
 class AnalyticsToJSON
+
+	def initialize(apiKey, apiSecret)
+		@@api_key = apiKey
+		@@api_secret = apiSecret
+	end
 
 	def apiRequestWithSig(method, uri, pageToken)
 		t = Time.now
 		expires = Time.local(t.year, t.mon, t.day, t.hour + 1).to_i
-		params = { "api_key" => API_KEY, "expires" => expires, "limit" => 500}
+		params = { "api_key" => @@api_key, "expires" => expires, "limit" => 500}
 		if(pageToken != nil)
 			params["page_token"] = pageToken
 			pageToken = "&page_token=%{ptoken}" % {ptoken: pageToken}
 		end
-		signature = CGI.escape(OoyalaApi.generate_signature(SECRET, method, uri, params, nil))
-		getURI = 'http://api.ooyala.com%{uri}?api_key=%{apikey}&expires=%{expires}&limit=%{limit}&signature=%{signature}%{ptoken}' %  { uri: uri, apikey: API_KEY, expires: expires, signature: signature, limit: 500, ptoken: pageToken}
+		signature = CGI.escape(OoyalaApi.generate_signature(@@api_secret, method, uri, params, nil))
+		getURI = 'http://api.ooyala.com%{uri}?api_key=%{apikey}&expires=%{expires}&limit=%{limit}&signature=%{signature}%{ptoken}' %  { uri: uri, apikey: @@api_key, expires: expires, signature: signature, limit: 500, ptoken: pageToken}
 		request = RestClient::Request.new(
 			:method  => method,
 			:url     => getURI
@@ -74,7 +76,6 @@ class AnalyticsToJSON
 
 		# If customer wants stats between day X and day Y, we need to set an end date of Y+1. Our analytics are quirky.
 		url = "/v2/analytics/reports/account/performance/videos/%{from}...%{to}" % { from: fromDate.to_s, to: (toDate+1).to_s }
-		puts url
 		json_hash = getPages(url)
 		File.open("output/analytics_results.json", "w") do |outfile|
 			outfile.write(JSON.pretty_generate(json_hash))

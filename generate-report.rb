@@ -1,4 +1,5 @@
 require 'optparse'
+require 'yaml'
 require './lib/analyticstojson'
 
 #Acquire command line optionsoptions[:secret]
@@ -31,5 +32,6 @@ elsif !options.has_key?(:to_date)
   exit(1)
 end
 
-instance = AnalyticsToJSON.new
+config_vars = YAML.load_file('config.yaml')
+instance = AnalyticsToJSON.new(config_vars['api_key'],config_vars['api_secret'])
 instance.runReport(options[:from_date],options[:to_date])
