@@ -1,4 +1,4 @@
-require './ooyala_api.rb'
+require './lib/ooyala_api.rb'
 require 'date'
 
 API_KEY="YOUR_KEY_HERE"
