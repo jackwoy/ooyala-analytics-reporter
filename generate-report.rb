@@ -35,7 +35,15 @@ elsif !options.has_key?(:to_date)
 end
 jsonFilename = "output/analytics_results_%{from}-to-%{to}.json" % { from:options[:from_date], to:options[:to_date] }
 csvFilename = "output/csv_analytics_results_%{from}-to-%{to}.csv" % { from:options[:from_date], to:options[:to_date] }
-config_vars = YAML.load_file('config.yaml')
+# Hacky way of handling custom config. Mainly done for repository management purposes to reduce likelihood of API credentials being committed.
+# System will use config.local.yaml (which isn't checked in) preferentially to config.yaml (which is).
+configFilename = ""
+if File.exist?('config.local.yaml')
+  configFilename = 'config.local.yaml'
+else
+  configFilename = 'config.yaml'
+end
+config_vars = YAML.load_file(configFilename)
 
 analytics = AnalyticsToJSON.new(config_vars['api_key'],config_vars['api_secret'])
 puts "Generating JSON"
