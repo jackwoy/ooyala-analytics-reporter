@@ -30,10 +30,13 @@ class AnalyticsJSONtoCSV
 			crunchedArray.push([name,plays,avg_unique_user_per_day.round(2),avg_vid_per_user_per_day.round(2),video_conversion_rate.round(2),hours_delivered.round(2),avg_time_watched_per_video_formatted])
 		end
 
+		# Sort array
+		sortedArray = crunchedArray.sort_by{|k|k[1]}.reverse
+
 		# Output numbers into CSV
 		CSV.open(outFile, "wb") do |csv|
 			csv << csvHeaders
-			crunchedArray.each do |line|
+			sortedArray.each do |line|
 				csv << line
 			end
 		end
