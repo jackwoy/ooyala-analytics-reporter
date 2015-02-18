@@ -10,14 +10,15 @@ class AnalyticsToJSON
 
 	def apiRequestWithSig(method, uri, pageToken)
 		t = Time.now
+		query_limit = 500
 		expires = Time.local(t.year, t.mon, t.day, t.hour + 1).to_i
-		params = { "api_key" => @@api_key, "expires" => expires, "limit" => 500}
+		params = { "api_key" => @@api_key, "expires" => expires, "limit" => query_limit, "order_by" => "none"}
 		if(pageToken != nil)
 			params["page_token"] = pageToken
 			pageToken = "&page_token=%{ptoken}" % {ptoken: pageToken}
 		end
 		signature = CGI.escape(OoyalaApi.generate_signature(@@api_secret, method, uri, params, nil))
-		getURI = 'http://api.ooyala.com%{uri}?api_key=%{apikey}&expires=%{expires}&limit=%{limit}&signature=%{signature}%{ptoken}' %  { uri: uri, apikey: @@api_key, expires: expires, signature: signature, limit: 500, ptoken: pageToken}
+		getURI = 'http://api.ooyala.com%{uri}?api_key=%{apikey}&expires=%{expires}&limit=%{limit}&order_by=none&signature=%{signature}%{ptoken}' %  { uri: uri, apikey: @@api_key, expires: expires, signature: signature, limit: query_limit, ptoken: pageToken}
 		request = RestClient::Request.new(
 			:method  => method,
 			:url     => getURI
