@@ -10,13 +10,13 @@ require './lib/analyticsjsontocsv'
 Shoes.app title: "Ooyala Analytics Report Generator", width: 400, height: 200, resizable: false do
   current_date = DateTime.now
   @root_stack = stack do
+    para "Start Date"
     flow do
-      para "Start Date"
       @start_day_box = list_box items: (1..31).to_a, width:60, choose: current_date.day.to_i
       @start_month_box = list_box items: (1..12).to_a, width:60, choose: current_date.month.to_i
       @start_year_box = list_box items: (2013..current_date.year.to_i).to_a, width:100, choose: current_date.year.to_i
     end
-      para "End Date"
+    para "End Date"
     flow do 
       @end_day_box = list_box items: (1..31).to_a, width:60, choose: current_date.day.to_i
       @end_month_box = list_box items: (1..12).to_a, width:60, choose: current_date.month.to_i
