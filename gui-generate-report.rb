@@ -9,7 +9,7 @@ require './lib/analyticsjsontocsv'
 
 Shoes.app title: "Ooyala Analytics Report Generator", width: 400, height: 200, resizable: false do
   current_date = DateTime.now
-  @root_stack = stack do
+  @root_stack = stack margin:0.05 do
     para "Start Date"
     flow do
       @start_day_box = list_box items: (1..31).to_a, width:60, choose: current_date.day.to_i
