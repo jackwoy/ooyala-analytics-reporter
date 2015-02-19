@@ -24,8 +24,6 @@ Shoes.app title: "Ooyala Analytics Report Generator" do
     # TODO: Use change handler for start date and end date to enable this button once we have valid dates?
     @report_button = button "Generate Report"
     
-
-
     @report_button.click do
       # FIXME: Very basic input checking. Make sure we've been given a date in YYYY-MM-DD format.
       # FIXME: Need to test for things like start date being before end date.
