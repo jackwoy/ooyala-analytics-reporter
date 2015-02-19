@@ -27,7 +27,7 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 400, height: 200, r
     #@p = progress width: 1.0
     
     # TODO: Use change handler for start date and end date to enable this button once we have valid dates?
-    @report_button = button "Generate Report"
+    @report_button = button "Generate Report", width:1.0
     
     @report_button.click do
       if !Date.valid_date?(@start_year_box.text.to_i, @start_month_box.text.to_i, @start_day_box.text.to_i)
