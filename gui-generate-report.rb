@@ -8,14 +8,19 @@ require 'date'
 require './lib/analyticsjsontocsv'
 
 Shoes.app title: "Ooyala Analytics Report Generator" do
+  current_date = DateTime.now
   @root_stack = stack do
     flow do
       para "Start Date"
-      @start_date = edit_line
+      @start_day_box = list_box items: (1..31).to_a, width:60, choose: current_date.day.to_i
+      @start_month_box = list_box items: (1..12).to_a, width:60, choose: current_date.month.to_i
+      @start_year_box = list_box items: (2013..current_date.year.to_i).to_a, width:100, choose: current_date.year.to_i
     end
-    flow do
       para "End Date"
-      @end_date = edit_line
+    flow do 
+      @end_day_box = list_box items: (1..31).to_a, width:60, choose: current_date.day.to_i
+      @end_month_box = list_box items: (1..12).to_a, width:60, choose: current_date.month.to_i
+      @end_year_box = list_box items: (2013..current_date.year.to_i).to_a, width:100, choose: current_date.year.to_i
     end
 
     # TODO: Implement progress bar.
@@ -25,19 +30,28 @@ Shoes.app title: "Ooyala Analytics Report Generator" do
     @report_button = button "Generate Report"
     
     @report_button.click do
-      # FIXME: Very basic input checking. Make sure we've been given a date in YYYY-MM-DD format.
-      # FIXME: Need to test for things like start date being before end date.
-      if !validate_date_input?(@start_date.text())
+      if !Date.valid_date?(@start_year_box.text.to_i, @start_month_box.text.to_i, @start_day_box.text.to_i)
         # FIXME: Don't raise so many alerts. :(
         alert("Start date is not a valid date.")
         return
       end
-      if !validate_date_input?(@end_date.text())
+      if !Date.valid_date?(@end_year_box.text.to_i, @end_month_box.text.to_i, @end_day_box.text.to_i)
         alert("End date is not a valid date.")
         return
       end
+
+      # FIXME: We do this conversion in a few places. Do it once, and pass the dates around as needed instead.
+      start_date = Date.new(@start_year_box.text.to_i, @start_month_box.text.to_i, @start_day_box.text.to_i)
+      end_date = Date.new(@end_year_box.text.to_i, @end_month_box.text.to_i, @end_day_box.text.to_i)
+
+      # If our end date is before our start date, that makes no sense. Halt.
+      if end_date < start_date
+        # FIXME: Don't raise so many alerts. :(
+        alert("End date cannot be before start date.")
+        return
+      end
       alert("Generating Report")
-      run_report(@start_date.text(), @end_date.text())
+      run_report(start_date.to_s, end_date.to_s)
       alert("Done!")
     end
     # Sample progress bar animation code
