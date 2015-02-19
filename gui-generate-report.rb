@@ -36,6 +36,7 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 400, height: 200, r
         return
       end
       if !Date.valid_date?(@end_year_box.text.to_i, @end_month_box.text.to_i, @end_day_box.text.to_i)
+        # FIXME: Don't raise so many alerts. :(
         alert("End date is not a valid date.")
         return
       end
@@ -50,8 +51,10 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 400, height: 200, r
         alert("End date cannot be before start date.")
         return
       end
+      # FIXME: Don't raise so many alerts. :(
       alert("Generating Report")
       run_report(start_date.to_s, end_date.to_s)
+      # FIXME: Don't raise so many alerts. :(
       alert("Done!")
     end
     # Sample progress bar animation code
@@ -67,7 +70,7 @@ def validate_date_input?(date_as_string)
   return Date.valid_date?(y.to_i, m.to_i, d.to_i)
 end
 
-# Date inputs expected as string represen
+# Date inputs expected as string representations of dates
 def calculate_days_difference(start_date_string, end_date_string)
   from = Date.parse(start_date_string)
   to = Date.parse(end_date_string)
