@@ -22,7 +22,8 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 400, height: 200, r
       @end_month_box = list_box items: (1..12).to_a, width:60, choose: current_date.month.to_i
       @end_year_box = list_box items: (2013..current_date.year.to_i).to_a, width:100, choose: current_date.year.to_i
     end
-
+    @error_status = para "", stroke:red
+    @generation_status = para ""
     # TODO: Implement progress bar.
     #@p = progress width: 1.0
     
@@ -30,14 +31,15 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 400, height: 200, r
     @report_button = button "Generate Report"
     
     @report_button.click do
+      # Clear generation status text, in case it has been previously set.
+      @generation_status.text = ""
+
       if !Date.valid_date?(@start_year_box.text.to_i, @start_month_box.text.to_i, @start_day_box.text.to_i)
-        # FIXME: Don't raise so many alerts. :(
-        alert("Start date is not a valid date.")
+        @error_status.text = "Start date is not a valid date."
         return
       end
       if !Date.valid_date?(@end_year_box.text.to_i, @end_month_box.text.to_i, @end_day_box.text.to_i)
-        # FIXME: Don't raise so many alerts. :(
-        alert("End date is not a valid date.")
+        @error_status.text = "End date is not a valid date."
         return
       end
 
@@ -47,15 +49,16 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 400, height: 200, r
 
       # If our end date is before our start date, that makes no sense. Halt.
       if end_date < start_date
-        # FIXME: Don't raise so many alerts. :(
-        alert("End date cannot be before start date.")
+        @error_status.text = "End date cannot be before start date."
         return
       end
-      # FIXME: Don't raise so many alerts. :(
-      alert("Generating Report")
+
+      # Assuming we're now through all the validation steps successfully, so clear any previous error.
+      @error_status.text = ""
+
+      @generation_status.text = "Generating Report, please wait."
       run_report(start_date.to_s, end_date.to_s)
-      # FIXME: Don't raise so many alerts. :(
-      alert("Done!")
+      @generation_status.text = "Done! CSV saved to output folder."
     end
     # Sample progress bar animation code
     # TODO: Implement progress bar.
