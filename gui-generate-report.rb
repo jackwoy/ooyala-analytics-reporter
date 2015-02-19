@@ -7,7 +7,7 @@ require './lib/analyticstojson'
 require 'date'
 require './lib/analyticsjsontocsv'
 
-Shoes.app title: "Ooyala Analytics Report Generator", width: 400, height: 200, resizable: false do
+Shoes.app title: "Ooyala Analytics Report Generator", width: 400, height: 260, resizable: false do
   current_date = DateTime.now
   @root_stack = stack margin:0.05 do
     para "Start Date"
