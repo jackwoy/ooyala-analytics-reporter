@@ -1,6 +1,7 @@
 require 'optparse'
 require 'yaml'
 require './lib/analyticstojson'
+require './lib/analyticsv3tojson'
 require 'date'
 require './lib/analyticsjsontocsv'
 
@@ -9,7 +10,7 @@ options = {}
 begin
   OptionParser.new do |opts|
 
-    opts.banner = "Usage: generate-report.rb -s <start_date> -e <end_date>"
+    opts.banner = "Usage: generate-report.rb -s <start_date> -e <end_date> -o"
 
     opts.on("-s from_date", "Start date in ISO, e.g. 2014-01-01", :REQUIRED) do |s|
       options[:from_date] = s
@@ -17,6 +18,10 @@ begin
 
     opts.on("-e to_date", "End date in ISO, e.g. 2014-01-01", :REQUIRED) do |e|
       options[:to_date] = e
+    end
+
+    opts.on("-o", "--old", "Use v2 analytics") do
+      options[:v2_analytics] = true
     end
   end.parse!
 rescue OptionParser::InvalidOption => e
@@ -45,7 +50,11 @@ else
 end
 config_vars = YAML.load_file(configFilename)
 
-analytics = AnalyticsToJSON.new(config_vars['api_key'],config_vars['api_secret'])
+if(options[:v2_analytics])
+  analytics = AnalyticsToJSON.new(config_vars['api_key'],config_vars['api_secret'])
+else
+  analytics = AnalyticsV3ToJSON.new(config_vars['api_key'],config_vars['api_secret'])
+end
 puts "Generating JSON"
 analytics.runReport(options[:from_date],options[:to_date], jsonFilename)
 
@@ -56,5 +65,9 @@ daysDifference = to - from
 
 csvOut = AnalyticsJSONtoCSV.new
 puts "Parsing to CSV"
-csvOut.csvFromFile(jsonFilename,csvFilename,daysDifference.to_i+1)
+if(options[:v2_analytics])
+  csvOut.csvFromFile(jsonFilename,csvFilename,daysDifference.to_i+1)
+else
+  puts "Not implemented!"
+end
 puts "Done!"
