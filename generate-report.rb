@@ -4,6 +4,7 @@ require './lib/analyticstojson'
 require './lib/analyticsv3tojson'
 require 'date'
 require './lib/analyticsjsontocsv'
+require './lib/analyticsv3jsontocsv'
 
 #Acquire command line optionsoptions[:secret]
 options = {}
@@ -63,11 +64,11 @@ to = Date.parse(options[:to_date])
 
 daysDifference = to - from
 
-csvOut = AnalyticsJSONtoCSV.new
-puts "Parsing to CSV"
 if(options[:v2_analytics])
-  csvOut.csvFromFile(jsonFilename,csvFilename,daysDifference.to_i+1)
-else
-  puts "Not implemented!"
+  csvOut = AnalyticsJSONtoCSV.new
+else  
+  csvOut = AnalyticsV3JSONtoCSV.new
 end
+puts "Parsing to CSV"
+csvOut.csvFromFile(jsonFilename,csvFilename,daysDifference.to_i+1)
 puts "Done!"
