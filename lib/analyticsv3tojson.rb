@@ -15,13 +15,11 @@ class AnalyticsV3ToJSON
 		query_limit = 1000
 		expires = Time.local(t.year, t.mon, t.day, t.hour + 1).to_i
 		# FIXME: Messy, messy. Need to overhaul how query parameters are handled as a whole.
-		params = { "api_key" => @@api_key, "expires" => expires, "limit" => query_limit, "order_by" => "none",
+		params = { "api_key" => @@api_key, "expires" => expires, "limit" => query_limit,
 		"report_type" => "performance",
 		"dimensions" => "asset",
-		"metrics" => "displays,plays_requested,video_starts,playthrough_25,playthrough_50,playthrough_75,playthrough_100,time_watched,uniq_plays_requested",
 		"start_date" => startDate.to_s,
-		"end_date" => endDate.to_s,
-		"sort" => "displays"}
+		"end_date" => endDate.to_s}
 
 #report_type=performance&dimensions=asset
 #&metrics=displays,plays_requested,video_starts,playthrough_25,playthrough_50,playthrough_75,playthrough_100,time_watched,uniq_plays_requested
@@ -32,7 +30,7 @@ class AnalyticsV3ToJSON
 			pageNumber = "&page=%{pnum}" % {pnum: pageNumber}
 		end
 		signature = CGI.escape(OoyalaApi.generate_signature(@@api_secret, method, uriForSig, params, nil))
-		getURI = 'http://api.ooyala.com%{uri}&api_key=%{apikey}&expires=%{expires}&limit=%{limit}&order_by=none&signature=%{signature}%{pnum}' %  { uri: uri, apikey: @@api_key, expires: expires, signature: signature, limit: query_limit, pnum: pageNumber}
+		getURI = 'http://api.ooyala.com%{uri}&api_key=%{apikey}&expires=%{expires}&limit=%{limit}&signature=%{signature}%{pnum}' %  { uri: uri, apikey: @@api_key, expires: expires, signature: signature, limit: query_limit, pnum: pageNumber}
 		request = RestClient::Request.new(
 			:method  => method,
 			:url     => getURI
@@ -122,7 +120,7 @@ class AnalyticsV3ToJSON
 		end
 		# If customer wants stats between day X and day Y, we need to set an end date of Y+1. Our analytics are quirky.
 		#url = "/v2/analytics/reports/account/performance/videos/%{from}...%{to}" % { from: fromDate.to_s, to: (toDate+1).to_s }
-		url = "/v3/analytics/reports?report_type=performance&dimensions=asset&metrics=displays,plays_requested,video_starts,playthrough_25,playthrough_50,playthrough_75,playthrough_100,time_watched,uniq_plays_requested&sort=displays&start_date=%{from}&end_date=%{to}" % { from: fromDate.to_s, to: (toDate+1).to_s }
+		url = "/v3/analytics/reports?report_type=performance&dimensions=asset&start_date=%{from}&end_date=%{to}" % { from: fromDate.to_s, to: (toDate+1).to_s }
 		#url = "/v3/analytics/reports?report_type=performance&dimensions=asset&metrics=displays,plays_requested&start_date=%{from}&end_date=%{to}" % { from: fromDate.to_s, to: (toDate+1).to_s }
 		json_hash = getPages(url, fromDate, toDate+1)
 		File.open(outFileName, "w") do |outfile|
