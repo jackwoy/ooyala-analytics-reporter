@@ -1,7 +1,7 @@
 require './lib/ooyala_api.rb'
 require 'date'
 
-class AnalyticsToJSON
+class AnalyticsV3ToJSON
 
 	def initialize(apiKey, apiSecret)
 		@@api_key = apiKey
