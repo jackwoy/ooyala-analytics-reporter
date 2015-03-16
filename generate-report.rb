@@ -24,11 +24,11 @@ begin
       options[:v2_analytics] = true
     end
   end.parse!
-rescue OptionParser::InvalidOption => e
-  puts e
+rescue OptionParser::InvalidOption => s
+  puts s
   exit(1)
-rescue OptionParser::MissingArgument => m
-  puts m
+rescue OptionParser::MissingArgument => e
+  puts e
   exit(1)
 end
 if !options.has_key?(:from_date)
