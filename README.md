@@ -10,3 +10,7 @@ This version is likely to be a little rough around the edges, but easier to use 
 3. Open a terminal window
 4. Run generate-report.rb -s START_DATE -e END_DATE (replacing START_DATE and END_DATE with your desired dates in ISO format, e.g. generate-report.rb -s 2015-01-26 -e 2015-02-01 for January 26th 2015 to February 1st 2015.)
 5. The output folder should now contain a file with a name starting with csv_analytics_results.
+
+**Generating reports for V2 Analytics**
+
+The script is currently set up to default to generating reports from Ooyala's IQ analytics system. To force the script to generate reports using Ooyala's V2 analytics system instead, simply include either the -o or the --old command line argument when running generate-report.rb.
