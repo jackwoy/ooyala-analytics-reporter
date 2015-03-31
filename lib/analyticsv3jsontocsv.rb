@@ -27,7 +27,7 @@ class AnalyticsV3JSONtoCSV
 				avg_time_watched_per_video_seconds = video_starts > 0 ? time_watched_milliseconds/1000/video_starts : 0
 				avg_time_watched_per_video_formatted = Time.at(avg_time_watched_per_video_seconds).utc.strftime("%H:%M:%S")
 				unique_users = video_hash.fetch("uniq_plays_requested",0)
-				avg_plays_requested_per_user = (plays_requested.to_f/unique_users.to_f).round(2)
+				avg_plays_requested_per_user = (plays_requested != 0 && unique_users != 0) ? (plays_requested.to_f/unique_users.to_f).round(2) : 0
 				pt25 = video_hash.fetch("playthrough_25",0)
 				pt50 = video_hash.fetch("playthrough_50",0)
 				pt75 = video_hash.fetch("playthrough_75",0)
