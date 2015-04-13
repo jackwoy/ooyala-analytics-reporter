@@ -39,6 +39,13 @@ elsif !options.has_key?(:to_date)
   puts "To Date is required"
   exit(1)
 end
+
+# Check whether the output folder exists. Create it if it does not.
+if !Dir.exist?('output')
+  puts 'Could not find output folder. Creating it now.'
+  Dir.mkdir('output')
+end
+
 jsonFilename = "output/analytics_results_%{from}-to-%{to}.json" % { from:options[:from_date], to:options[:to_date] }
 csvFilename = "output/csv_analytics_results_%{from}-to-%{to}.csv" % { from:options[:from_date], to:options[:to_date] }
 # Hacky way of handling custom config. Mainly done for repository management purposes to reduce likelihood of API credentials being committed.
