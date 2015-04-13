@@ -40,14 +40,6 @@ elsif !options.has_key?(:to_date)
   exit(1)
 end
 
-# Check whether the output folder exists. Create it if it does not.
-if !Dir.exist?('output')
-  puts 'Could not find output folder. Creating it now.'
-  Dir.mkdir('output')
-end
-
-jsonFilename = "output/analytics_results_%{from}-to-%{to}.json" % { from:options[:from_date], to:options[:to_date] }
-csvFilename = "output/csv_analytics_results_%{from}-to-%{to}.csv" % { from:options[:from_date], to:options[:to_date] }
 # Hacky way of handling custom config. Mainly done for repository management purposes to reduce likelihood of API credentials being committed.
 # System will use config.local.yaml (which isn't checked in) preferentially to config.yaml (which is).
 configFilename = ""
@@ -57,6 +49,16 @@ else
   configFilename = 'config.yaml'
 end
 config_vars = YAML.load_file(configFilename)
+
+# Check whether the output folder exists. Create it if it does not.
+output_folder = config_vars['output_folder']
+if !Dir.exist?(output_folder)
+  puts 'Could not find output folder. Creating it now.'
+  Dir.mkdir(output_folder)
+end
+
+jsonFilename = "%{output}/analytics_results_%{from}-to-%{to}.json" % { output: output_folder, from:options[:from_date], to:options[:to_date] }
+csvFilename = "%{output}/csv_analytics_results_%{from}-to-%{to}.csv" % { output: output_folder, from:options[:from_date], to:options[:to_date] }
 
 if(options[:v2_analytics])
   analytics = AnalyticsToJSON.new(config_vars['api_key'],config_vars['api_secret'])
