@@ -46,7 +46,7 @@ end
 
 # Hacky way of handling custom config. Mainly done for repository management purposes to reduce likelihood of API credentials being committed.
 # System will use config.local.yaml (which isn't checked in) preferentially to config.yaml (which is).
-def get_config()
+def getConfig()
   configFilename = ""
   if File.exist?('config.local.yaml')
     configFilename = 'config.local.yaml'
@@ -56,16 +56,16 @@ def get_config()
   return YAML.load_file(configFilename)
 end
 
-def calculate_days_difference(start_date_string, end_date_string)
+def calculateDaysDifference(start_date_string, end_date_string)
   from = Date.parse(start_date_string)
   to = Date.parse(end_date_string)
   return to - from
 end
 
-def run_report(start_date_string, end_date_string, v2_analytics)
-  daysDifference = calculate_days_difference(start_date_string,end_date_string)
+def runReport(start_date_string, end_date_string, v2_analytics)
+  daysDifference = calculateDaysDifference(start_date_string,end_date_string)
 
-  config_vars = get_config()
+  config_vars = getConfig()
   # Check whether the output folder exists. Create it if it does not.
   output_folder = config_vars['output_folder']
   if !Dir.exist?(output_folder)
@@ -91,4 +91,4 @@ def run_report(start_date_string, end_date_string, v2_analytics)
   puts "Done!"
 end
 
-run_report(options[:from_date],options[:to_date],options[:v2_analytics])
+runReport(options[:from_date],options[:to_date],options[:v2_analytics])
