@@ -40,6 +40,10 @@ elsif !options.has_key?(:to_date)
   exit(1)
 end
 
+if !options.has_key?(:v2_analytics)
+  options[:v2_analytics] = false
+end
+
 # Hacky way of handling custom config. Mainly done for repository management purposes to reduce likelihood of API credentials being committed.
 # System will use config.local.yaml (which isn't checked in) preferentially to config.yaml (which is).
 def get_config()
@@ -58,7 +62,7 @@ def calculate_days_difference(start_date_string, end_date_string)
   return to - from
 end
 
-def run_report(start_date_string, end_date_string)
+def run_report(start_date_string, end_date_string, v2_analytics)
   config_vars = get_config()
   # Check whether the output folder exists. Create it if it does not.
   output_folder = config_vars['output_folder']
@@ -70,7 +74,7 @@ def run_report(start_date_string, end_date_string)
   jsonFilename = "%{output}/analytics_results_%{from}-to-%{to}.json" % { output: output_folder, from:start_date_string, to:end_date_string }
   csvFilename = "%{output}/csv_analytics_results_%{from}-to-%{to}.csv" % { output: output_folder, from:start_date_string, to:end_date_string }
 
-  if(options[:v2_analytics])
+  if(v2_analytics)
     analytics = AnalyticsToJSON.new(config_vars['api_key'],config_vars['api_secret'])
   else
     analytics = AnalyticsV3ToJSON.new(config_vars['api_key'],config_vars['api_secret'])
@@ -80,7 +84,7 @@ def run_report(start_date_string, end_date_string)
 
   daysDifference = calculate_days_difference(start_date_string,end_date_string)
 
-  if(options[:v2_analytics])
+  if(v2_analytics)
     csvOut = AnalyticsJSONtoCSV.new
   else  
     csvOut = AnalyticsV3JSONtoCSV.new
@@ -90,4 +94,4 @@ def run_report(start_date_string, end_date_string)
   puts "Done!"
 end
 
-run_report(options[:from_date],options[:to_date])
+run_report(options[:from_date],options[:to_date],options[:v2_analytics])
