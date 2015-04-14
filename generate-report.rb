@@ -63,6 +63,8 @@ def calculate_days_difference(start_date_string, end_date_string)
 end
 
 def run_report(start_date_string, end_date_string, v2_analytics)
+  daysDifference = calculate_days_difference(start_date_string,end_date_string)
+
   config_vars = get_config()
   # Check whether the output folder exists. Create it if it does not.
   output_folder = config_vars['output_folder']
@@ -81,11 +83,9 @@ def run_report(start_date_string, end_date_string, v2_analytics)
     analytics = AnalyticsV3ToJSON.new(config_vars['api_key'],config_vars['api_secret'])
     csvOut = AnalyticsV3JSONtoCSV.new
   end
+
   puts "Generating JSON"
   analytics.runReport(start_date_string,end_date_string, jsonFilename)
-
-  daysDifference = calculate_days_difference(start_date_string,end_date_string)
-
   puts "Parsing to CSV"
   csvOut.csvFromFile(jsonFilename,csvFilename,daysDifference.to_i+1)
   puts "Done!"
