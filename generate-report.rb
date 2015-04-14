@@ -13,11 +13,11 @@ begin
 
     opts.banner = "Usage: generate-report.rb -s <start_date> -e <end_date> -o"
 
-    opts.on("-s from_date", "Start date in ISO, e.g. 2014-01-01", :REQUIRED) do |s|
+    opts.on("-s from_date", "Start date in ISO, e.g. 2014-01-31", :REQUIRED) do |s|
       options[:from_date] = s
     end
 
-    opts.on("-e to_date", "End date in ISO, e.g. 2014-01-01", :REQUIRED) do |e|
+    opts.on("-e to_date", "End date in ISO, e.g. 2014-01-31", :REQUIRED) do |e|
       options[:to_date] = e
     end
 
