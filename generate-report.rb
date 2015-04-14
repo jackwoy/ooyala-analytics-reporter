@@ -42,42 +42,49 @@ end
 
 # Hacky way of handling custom config. Mainly done for repository management purposes to reduce likelihood of API credentials being committed.
 # System will use config.local.yaml (which isn't checked in) preferentially to config.yaml (which is).
-configFilename = ""
-if File.exist?('config.local.yaml')
-  configFilename = 'config.local.yaml'
-else
-  configFilename = 'config.yaml'
-end
-config_vars = YAML.load_file(configFilename)
-
-# Check whether the output folder exists. Create it if it does not.
-output_folder = config_vars['output_folder']
-if !Dir.exist?(output_folder)
-  puts 'Could not find output folder. Creating it now.'
-  Dir.mkdir(output_folder)
+def get_config()
+  configFilename = ""
+  if File.exist?('config.local.yaml')
+    configFilename = 'config.local.yaml'
+  else
+    configFilename = 'config.yaml'
+  end
+  return YAML.load_file(configFilename)
 end
 
-jsonFilename = "%{output}/analytics_results_%{from}-to-%{to}.json" % { output: output_folder, from:options[:from_date], to:options[:to_date] }
-csvFilename = "%{output}/csv_analytics_results_%{from}-to-%{to}.csv" % { output: output_folder, from:options[:from_date], to:options[:to_date] }
+def run_report()
+  config_vars = get_config()
+  # Check whether the output folder exists. Create it if it does not.
+  output_folder = config_vars['output_folder']
+  if !Dir.exist?(output_folder)
+    puts 'Could not find output folder. Creating it now.'
+    Dir.mkdir(output_folder)
+  end
 
-if(options[:v2_analytics])
-  analytics = AnalyticsToJSON.new(config_vars['api_key'],config_vars['api_secret'])
-else
-  analytics = AnalyticsV3ToJSON.new(config_vars['api_key'],config_vars['api_secret'])
+  jsonFilename = "%{output}/analytics_results_%{from}-to-%{to}.json" % { output: output_folder, from:options[:from_date], to:options[:to_date] }
+  csvFilename = "%{output}/csv_analytics_results_%{from}-to-%{to}.csv" % { output: output_folder, from:options[:from_date], to:options[:to_date] }
+
+  if(options[:v2_analytics])
+    analytics = AnalyticsToJSON.new(config_vars['api_key'],config_vars['api_secret'])
+  else
+    analytics = AnalyticsV3ToJSON.new(config_vars['api_key'],config_vars['api_secret'])
+  end
+  puts "Generating JSON"
+  analytics.runReport(options[:from_date],options[:to_date], jsonFilename)
+
+  from = Date.parse(options[:from_date])
+  to = Date.parse(options[:to_date])
+
+  daysDifference = to - from
+
+  if(options[:v2_analytics])
+    csvOut = AnalyticsJSONtoCSV.new
+  else  
+    csvOut = AnalyticsV3JSONtoCSV.new
+  end
+  puts "Parsing to CSV"
+  csvOut.csvFromFile(jsonFilename,csvFilename,daysDifference.to_i+1)
+  puts "Done!"
 end
-puts "Generating JSON"
-analytics.runReport(options[:from_date],options[:to_date], jsonFilename)
 
-from = Date.parse(options[:from_date])
-to = Date.parse(options[:to_date])
-
-daysDifference = to - from
-
-if(options[:v2_analytics])
-  csvOut = AnalyticsJSONtoCSV.new
-else  
-  csvOut = AnalyticsV3JSONtoCSV.new
-end
-puts "Parsing to CSV"
-csvOut.csvFromFile(jsonFilename,csvFilename,daysDifference.to_i+1)
-puts "Done!"
+run_report()
