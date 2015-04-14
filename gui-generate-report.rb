@@ -96,7 +96,7 @@ def run_report(startDate, endDate)
   jsonFilename = "output/analytics_results_%{from}-to-%{to}.json" % { from:startDate, to:endDate }
   csvFilename = "output/csv_analytics_results_%{from}-to-%{to}.csv" % { from:startDate, to:endDate }
   analytics = AnalyticsToJSON.new(config_vars['api_key'],config_vars['api_secret'])
-  analytics.runReport(startDate,endDate, jsonFilename)
+  analytics.getReport(startDate,endDate, jsonFilename)
   daysDifference = calculate_days_difference(startDate, endDate)
   csvOut = AnalyticsJSONtoCSV.new
   csvOut.csvFromFile(jsonFilename,csvFilename,daysDifference.to_i+1)

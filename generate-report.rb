@@ -85,7 +85,7 @@ def runReport(start_date_string, end_date_string, v2_analytics)
   end
 
   puts "Generating JSON"
-  analytics.runReport(start_date_string,end_date_string, jsonFilename)
+  analytics.getReport(start_date_string,end_date_string, jsonFilename)
   puts "Parsing to CSV"
   csvOut.csvFromFile(jsonFilename,csvFilename,daysDifference.to_i+1)
   puts "Done!"

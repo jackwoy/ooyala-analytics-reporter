@@ -61,7 +61,7 @@ class AnalyticsToJSON
 		return merged_hash
 	end
 
-	def runReport(fromDateString, toDateString, outFileName)
+	def getReport(fromDateString, toDateString, outFileName)
 		begin
 		   fromDate = Date.parse(fromDateString)
 		rescue ArgumentError
