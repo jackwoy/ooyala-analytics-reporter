@@ -76,19 +76,16 @@ def run_report(start_date_string, end_date_string, v2_analytics)
 
   if(v2_analytics)
     analytics = AnalyticsToJSON.new(config_vars['api_key'],config_vars['api_secret'])
+    csvOut = AnalyticsJSONtoCSV.new
   else
     analytics = AnalyticsV3ToJSON.new(config_vars['api_key'],config_vars['api_secret'])
+    csvOut = AnalyticsV3JSONtoCSV.new
   end
   puts "Generating JSON"
   analytics.runReport(start_date_string,end_date_string, jsonFilename)
 
   daysDifference = calculate_days_difference(start_date_string,end_date_string)
 
-  if(v2_analytics)
-    csvOut = AnalyticsJSONtoCSV.new
-  else  
-    csvOut = AnalyticsV3JSONtoCSV.new
-  end
   puts "Parsing to CSV"
   csvOut.csvFromFile(jsonFilename,csvFilename,daysDifference.to_i+1)
   puts "Done!"
