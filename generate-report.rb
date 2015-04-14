@@ -52,7 +52,13 @@ def get_config()
   return YAML.load_file(configFilename)
 end
 
-def run_report()
+def calculate_days_difference(start_date_string, end_date_string)
+  from = Date.parse(start_date_string)
+  to = Date.parse(end_date_string)
+  return to - from
+end
+
+def run_report(start_date_string, end_date_string)
   config_vars = get_config()
   # Check whether the output folder exists. Create it if it does not.
   output_folder = config_vars['output_folder']
@@ -61,8 +67,8 @@ def run_report()
     Dir.mkdir(output_folder)
   end
 
-  jsonFilename = "%{output}/analytics_results_%{from}-to-%{to}.json" % { output: output_folder, from:options[:from_date], to:options[:to_date] }
-  csvFilename = "%{output}/csv_analytics_results_%{from}-to-%{to}.csv" % { output: output_folder, from:options[:from_date], to:options[:to_date] }
+  jsonFilename = "%{output}/analytics_results_%{from}-to-%{to}.json" % { output: output_folder, from:start_date_string, to:end_date_string }
+  csvFilename = "%{output}/csv_analytics_results_%{from}-to-%{to}.csv" % { output: output_folder, from:start_date_string, to:end_date_string }
 
   if(options[:v2_analytics])
     analytics = AnalyticsToJSON.new(config_vars['api_key'],config_vars['api_secret'])
@@ -70,12 +76,9 @@ def run_report()
     analytics = AnalyticsV3ToJSON.new(config_vars['api_key'],config_vars['api_secret'])
   end
   puts "Generating JSON"
-  analytics.runReport(options[:from_date],options[:to_date], jsonFilename)
+  analytics.runReport(start_date_string,end_date_string, jsonFilename)
 
-  from = Date.parse(options[:from_date])
-  to = Date.parse(options[:to_date])
-
-  daysDifference = to - from
+  daysDifference = calculate_days_difference(start_date_string,end_date_string)
 
   if(options[:v2_analytics])
     csvOut = AnalyticsJSONtoCSV.new
@@ -87,4 +90,4 @@ def run_report()
   puts "Done!"
 end
 
-run_report()
+run_report(options[:from_date],options[:to_date])
