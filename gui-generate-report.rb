@@ -68,11 +68,6 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 400, height: 260, r
   end
 end
 
-def validate_date_input?(date_as_string)
-  y, m, d = date_as_string.split("-")
-  return Date.valid_date?(y.to_i, m.to_i, d.to_i)
-end
-
 # Date inputs expected as string representations of dates
 def calculate_days_difference(start_date_string, end_date_string)
   from = Date.parse(start_date_string)
