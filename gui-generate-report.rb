@@ -74,25 +74,29 @@ def calculateDaysDifference(start_date_string, end_date_string)
   to = Date.parse(end_date_string)
   return to - from
 end
-# startDate, endDate are expected to be string representations of dates
-# TODO: Split up this method into a few methods.
-def runReport(startDate, endDate)
-  # Hacky way of handling custom config. Mainly done for repository management purposes to reduce likelihood of API credentials being committed.
-  # System will use config.local.yaml (which isn't checked in) preferentially to config.yaml (which is).
+
+# Hacky way of handling custom config. Mainly done for repository management purposes to reduce likelihood of API credentials being committed.
+# System will use config.local.yaml (which isn't checked in) preferentially to config.yaml (which is).
+def getConfig()
   configFilename = ""
   if File.exist?('config.local.yaml')
     configFilename = 'config.local.yaml'
   else
     configFilename = 'config.yaml'
   end
-  config_vars = YAML.load_file(configFilename)
+  return YAML.load_file(configFilename)
+end
 
+# startDate, endDate are expected to be string representations of dates
+# TODO: Split up this method into a few methods.
+def runReport(startDate, endDate)
+  daysDifference = calculateDaysDifference(startDate, endDate)
+  config_vars = getConfig()
   # Could load output filenames from config. Or prompt user to save CSV instead.
   jsonFilename = "output/analytics_results_%{from}-to-%{to}.json" % { from:startDate, to:endDate }
   csvFilename = "output/csv_analytics_results_%{from}-to-%{to}.csv" % { from:startDate, to:endDate }
   analytics = AnalyticsToJSON.new(config_vars['api_key'],config_vars['api_secret'])
   analytics.getReport(startDate,endDate, jsonFilename)
-  daysDifference = calculateDaysDifference(startDate, endDate)
   csvOut = AnalyticsJSONtoCSV.new
   csvOut.csvFromFile(jsonFilename,csvFilename,daysDifference.to_i+1)
 end
