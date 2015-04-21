@@ -1,11 +1,8 @@
 Shoes.setup do
   gem 'rest-client'
 end
-require 'optparse'
-require 'yaml'
-require './lib/analyticstojson'
 require 'date'
-require './lib/analyticsjsontocsv'
+require './lib/reportgenerator'
 
 Shoes.app title: "Ooyala Analytics Report Generator", width: 400, height: 260, resizable: false do
   current_date = DateTime.now
@@ -57,7 +54,8 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 400, height: 260, r
       @error_status.text = ""
 
       @generation_status.text = "Generating Report, please wait."
-      runReport(start_date.to_s, end_date.to_s)
+      reporter = ReportGenerator.new
+      reporter.runReport(start_date.to_s, end_date.to_s)
       @generation_status.text = "Done! CSV saved to output folder."
     end
     # Sample progress bar animation code
@@ -66,37 +64,4 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 400, height: 260, r
     #   @p.fraction = (i % 100) / 100.0
     #end
   end
-end
-
-# Date inputs expected as string representations of dates
-def calculateDaysDifference(start_date_string, end_date_string)
-  from = Date.parse(start_date_string)
-  to = Date.parse(end_date_string)
-  return to - from
-end
-
-# Hacky way of handling custom config. Mainly done for repository management purposes to reduce likelihood of API credentials being committed.
-# System will use config.local.yaml (which isn't checked in) preferentially to config.yaml (which is).
-def getConfig()
-  configFilename = ""
-  if File.exist?('config.local.yaml')
-    configFilename = 'config.local.yaml'
-  else
-    configFilename = 'config.yaml'
-  end
-  return YAML.load_file(configFilename)
-end
-
-# startDate, endDate are expected to be string representations of dates
-# TODO: Split up this method into a few methods.
-def runReport(startDate, endDate)
-  daysDifference = calculateDaysDifference(startDate, endDate)
-  config_vars = getConfig()
-  # Could load output filenames from config. Or prompt user to save CSV instead.
-  jsonFilename = "output/analytics_results_%{from}-to-%{to}.json" % { from:startDate, to:endDate }
-  csvFilename = "output/csv_analytics_results_%{from}-to-%{to}.csv" % { from:startDate, to:endDate }
-  analytics = AnalyticsToJSON.new(config_vars['api_key'],config_vars['api_secret'])
-  analytics.getReport(startDate,endDate, jsonFilename)
-  csvOut = AnalyticsJSONtoCSV.new
-  csvOut.csvFromFile(jsonFilename,csvFilename,daysDifference.to_i+1)
 end
