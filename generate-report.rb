@@ -5,6 +5,7 @@ require './lib/reportgenerator'
 options = {}
 begin
   OptionParser.new do |opts|
+    options[:v2_analytics] = false
 
     opts.banner = "Usage: generate-report.rb -s <start_date> -e <end_date> -o"
 
@@ -18,6 +19,10 @@ begin
 
     opts.on("-o", "--old", "Use v2 analytics") do
       options[:v2_analytics] = true
+    end
+
+    opts.on("-p", "--params", "Include extra parameters. Cannot be used with v2 analytics.") do |p|
+      options[:extra_params] = p
     end
   end.parse!
 rescue OptionParser::InvalidOption => s
@@ -35,9 +40,10 @@ elsif !options.has_key?(:to_date)
   exit(1)
 end
 
-if !options.has_key?(:v2_analytics)
-  options[:v2_analytics] = false
+if options[:v2_analytics] && options.has_key?(:extra_params)
+  puts "Cannot include extra parameters in V2 analytics."
+  exit(1)
 end
 
 reporter = ReportGenerator.new
-reporter.runReport(options[:from_date],options[:to_date],options[:v2_analytics])
+reporter.runReport(options[:from_date],options[:to_date],options[:v2_analytics],options[:extra_params])
