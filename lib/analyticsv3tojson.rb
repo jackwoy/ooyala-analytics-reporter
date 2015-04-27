@@ -2,7 +2,7 @@ require './lib/ooyala_api.rb'
 require 'date'
 
 class AnalyticsV3ToJSON
-
+	attr_accessor :extra_params
 	def initialize(apiKey, apiSecret)
 		@@api_key = apiKey
 		@@api_secret = apiSecret
@@ -13,7 +13,7 @@ class AnalyticsV3ToJSON
 	def hashifyParameterString(param_string)
 		param_hash = {}
 		param_string.split('&').each do |pair|
-			key,value = pair.split('=')
+			key,value = pair.split('=',2)
 			param_hash[key] = value
 		end
 		return param_hash
@@ -33,17 +33,23 @@ class AnalyticsV3ToJSON
 		uriForParams = uri.slice((uri.index('?')+1)..uri.length)
 
 		expires = Time.local(t.year, t.mon, t.day, t.hour + 1).to_i
-		# FIXME: Messy, messy. Need to overhaul how query parameters are handled as a whole.
+		# FIXME: Better than it was, but still not great. Could make some performance savings by not regenerating this hash every time.
 		params = hashifyParameterString(uriForParams)
 		params["api_key"] = @@api_key
 		params["expires"] = expires
 		params["limit"] = @@query_limit
-		if(pageNumber != nil)
-			params["page"] = pageNumber
+		params["page"] = pageNumber if(pageNumber != nil)
+
+		if(@extra_params != nil)
+			extra_hash = hashifyParameterString(@extra_params)
+			destructiveMergeHashes(extra_hash,params)
+			#puts "Merged in additional parameters."
 		end
+
 		params["signature"] = CGI.escape(OoyalaApi.generate_signature(@@api_secret, method, uriForSig, params, nil))
 
 		getURI = 'http://api.ooyala.com%{uri}?%{param_string}' %  { uri: uriForSig, param_string: stringifyParameterHash(params) }
+
 		request = RestClient::Request.new(
 			:method  => method,
 			:url     => getURI
@@ -54,13 +60,19 @@ class AnalyticsV3ToJSON
 
 	# Cheers, Phil.
 	def mergeHashes(source_hash, target_hash)
-	source_hash.each { |key, value|
-	   if target_hash.has_key?(key)
-	       target_hash[key] = target_hash[key] + value
-	   elsif
+		source_hash.each { |key, value|
+		   if target_hash.has_key?(key)
+		       target_hash[key] = target_hash[key] + value
+		   elsif
+		       target_hash[key] = value
+		   end
+		}
+	end
+
+	def destructiveMergeHashes(source_hash, target_hash)
+		source_hash.each { |key, value|
 	       target_hash[key] = value
-	   end
-	}
+		}
 	end
 
 	def getPage(url, pageNumber)

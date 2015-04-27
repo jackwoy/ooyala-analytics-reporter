@@ -45,6 +45,7 @@ class ReportGenerator
       csvOut = AnalyticsJSONtoCSV.new
     else
       analytics = AnalyticsV3ToJSON.new(config_vars['api_key'],config_vars['api_secret'])
+      analytics.extra_params = extra_params if(extra_params != nil)
       csvOut = AnalyticsV3JSONtoCSV.new
     end
 
