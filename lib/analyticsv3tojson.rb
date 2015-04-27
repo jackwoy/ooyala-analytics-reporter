@@ -40,10 +40,6 @@ class AnalyticsV3ToJSON
 		"start_date" => startDate.to_s,
 		"end_date" => endDate.to_s}
 
-#report_type=performance&dimensions=asset
-#&metrics=displays,plays_requested,video_starts,playthrough_25,playthrough_50,playthrough_75,playthrough_100,time_watched,uniq_plays_requested
-#&sort=displays&start_date=%{from}&end_date=%{to}
-
 		if(pageNumber != nil)
 			params["page"] = pageNumber
 			pageNumber = "&page=%{pnum}" % {pnum: pageNumber}
@@ -54,7 +50,6 @@ class AnalyticsV3ToJSON
 			:method  => method,
 			:url     => getURI
 		)
-		#puts getURI
 		response = request.execute
 		return response
 	end
@@ -137,9 +132,7 @@ class AnalyticsV3ToJSON
 			outFileName = "analytics_results.json"
 		end
 		# If customer wants stats between day X and day Y, we need to set an end date of Y+1. Our analytics are quirky.
-		#url = "/v2/analytics/reports/account/performance/videos/%{from}...%{to}" % { from: fromDate.to_s, to: (toDate+1).to_s }
 		url = "/v3/analytics/reports?report_type=performance&dimensions=asset&start_date=%{from}&end_date=%{to}" % { from: fromDate.to_s, to: (toDate+1).to_s }
-		#url = "/v3/analytics/reports?report_type=performance&dimensions=asset&metrics=displays,plays_requested&start_date=%{from}&end_date=%{to}" % { from: fromDate.to_s, to: (toDate+1).to_s }
 		json_hash = getPages(url, fromDate, toDate+1)
 		File.open(outFileName, "w") do |outfile|
 			outfile.write(JSON.pretty_generate(json_hash))
