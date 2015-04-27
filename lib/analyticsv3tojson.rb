@@ -6,6 +6,8 @@ class AnalyticsV3ToJSON
 	def initialize(apiKey, apiSecret)
 		@@api_key = apiKey
 		@@api_secret = apiSecret
+		# Still need to improve this, but it's better than it used to be.
+		@@query_limit = 1000
 	end
 
 	def hashifyParameterString(param_string)
@@ -99,14 +101,13 @@ class AnalyticsV3ToJSON
 			end
 
 			if readablePages == nil
-				readablePages = calculateNumPages(total_count, 1000)
+				readablePages = calculateNumPages(total_count, @@query_limit)
 			end
 
 			puts "Processed page %{done} of %{total}" % {done: next_page + 1, total: readablePages}
 
 			# Reduce total_count by the number of assets we're looking at per page.
-			# FIXME: Pull limit from variable with broader scope.
-			total_count = total_count - 1000
+			total_count = total_count - @@query_limit
 
 			next_page = next_page + 1
 
