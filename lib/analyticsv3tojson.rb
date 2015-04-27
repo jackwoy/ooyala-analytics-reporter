@@ -8,6 +8,23 @@ class AnalyticsV3ToJSON
 		@@api_secret = apiSecret
 	end
 
+	def hashifyParameterString(param_string)
+		param_hash = {}
+		param_string.split('&').each do |pair|
+			key,value = pair.split('=')
+			param_hash[key] = value
+		end
+		return param_hash
+	end
+
+	def stringifyParameterHash(param_hash)
+		aggregator = ""
+		param_hash.each do |key, value|
+			aggregator = aggregator + "#{key}=#{value}&"
+		end
+		return aggregator.chomp('&')
+	end
+	
 	def apiRequestWithSig(method, uri, pageNumber, startDate, endDate)
 		t = Time.now
 		uriForSig = uri.slice(0..(uri.index('?')-1))
