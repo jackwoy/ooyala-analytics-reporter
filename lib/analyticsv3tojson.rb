@@ -26,26 +26,24 @@ class AnalyticsV3ToJSON
 		end
 		return aggregator.chomp('&')
 	end
-	
-	def apiRequestWithSig(method, uri, pageNumber, startDate, endDate)
+
+	def apiRequestWithSig(method, uri, pageNumber)
 		t = Time.now
 		uriForSig = uri.slice(0..(uri.index('?')-1))
-		# FIXME: If this is altered, page calculation is thrown out of whack. Maybe expand the scope of this var?
-		query_limit = 1000
+		uriForParams = uri.slice((uri.index('?')+1)..uri.length)
+
 		expires = Time.local(t.year, t.mon, t.day, t.hour + 1).to_i
 		# FIXME: Messy, messy. Need to overhaul how query parameters are handled as a whole.
-		params = { "api_key" => @@api_key, "expires" => expires, "limit" => query_limit,
-		"report_type" => "performance",
-		"dimensions" => "asset",
-		"start_date" => startDate.to_s,
-		"end_date" => endDate.to_s}
-
+		params = hashifyParameterString(uriForParams)
+		params["api_key"] = @@api_key
+		params["expires"] = expires
+		params["limit"] = @@query_limit
 		if(pageNumber != nil)
 			params["page"] = pageNumber
-			pageNumber = "&page=%{pnum}" % {pnum: pageNumber}
 		end
-		signature = CGI.escape(OoyalaApi.generate_signature(@@api_secret, method, uriForSig, params, nil))
-		getURI = 'http://api.ooyala.com%{uri}&api_key=%{apikey}&expires=%{expires}&limit=%{limit}&signature=%{signature}%{pnum}' %  { uri: uri, apikey: @@api_key, expires: expires, signature: signature, limit: query_limit, pnum: pageNumber}
+		params["signature"] = CGI.escape(OoyalaApi.generate_signature(@@api_secret, method, uriForSig, params, nil))
+
+		getURI = 'http://api.ooyala.com%{uri}?%{param_string}' %  { uri: uriForSig, param_string: stringifyParameterHash(params) }
 		request = RestClient::Request.new(
 			:method  => method,
 			:url     => getURI
@@ -65,8 +63,8 @@ class AnalyticsV3ToJSON
 	}
 	end
 
-	def getPage(url, pageNumber, startDate, endDate)
-		response = apiRequestWithSig("GET", url, pageNumber, startDate, endDate)
+	def getPage(url, pageNumber)
+		response = apiRequestWithSig("GET", url, pageNumber)
 		return response
 	end
 
@@ -80,7 +78,7 @@ class AnalyticsV3ToJSON
 		end
 	end
 
-	def getPages(url, startDate, endDate)
+	def getPages(url)
 		merged_hash = nil
 		next_page = 0
 		total_count = nil
@@ -88,7 +86,7 @@ class AnalyticsV3ToJSON
 
 		begin
 			# Make request, get response
-			response = getPage(url, next_page, startDate, endDate)
+			response = getPage(url, next_page)
 			response_hash = JSON.parse(response)
 
 			if total_count == nil
@@ -133,7 +131,7 @@ class AnalyticsV3ToJSON
 		end
 		# If customer wants stats between day X and day Y, we need to set an end date of Y+1. Our analytics are quirky.
 		url = "/v3/analytics/reports?report_type=performance&dimensions=asset&start_date=%{from}&end_date=%{to}" % { from: fromDate.to_s, to: (toDate+1).to_s }
-		json_hash = getPages(url, fromDate, toDate+1)
+		json_hash = getPages(url)
 		File.open(outFileName, "w") do |outfile|
 			outfile.write(JSON.pretty_generate(json_hash))
 			outfile.close
