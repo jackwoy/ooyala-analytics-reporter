@@ -21,7 +21,7 @@ begin
       options[:v2_analytics] = true
     end
 
-    opts.on("-p", "--params", "Include extra parameters. Cannot be used with v2 analytics.") do |p|
+    opts.on("-p extra_params", "--params", "Include extra parameters. Cannot be used with v2 analytics.") do |p|
       options[:extra_params] = p
     end
   end.parse!
