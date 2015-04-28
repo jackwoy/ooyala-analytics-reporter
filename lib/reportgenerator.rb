@@ -30,7 +30,7 @@ class ReportGenerator
     return to - from
   end
 
-  def runReport(start_date_string, end_date_string, v2_analytics, extra_params)
+  def runReport(start_date_string, end_date_string, v2_analytics, extra_params, config_filename)
     daysDifference = calculateDaysDifference(start_date_string,end_date_string)
     config_vars = getConfig()
     

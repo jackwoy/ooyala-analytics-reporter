@@ -55,4 +55,5 @@ if options[:v2_analytics] && options.has_key?(:extra_params)
 end
 
 reporter = ReportGenerator.new
-reporter.runReport(options[:from_date],options[:to_date],options[:v2_analytics],options[:extra_params])
+# FIXME: Should probably refactor this. Adding more arguments to the runReport method isn't a great way of doing things.
+reporter.runReport(options[:from_date],options[:to_date],options[:v2_analytics],options[:extra_params],options[:config])
