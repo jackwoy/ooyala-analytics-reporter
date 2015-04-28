@@ -4,7 +4,7 @@ end
 require 'date'
 require './lib/reportgenerator'
 
-Shoes.app title: "Ooyala Analytics Report Generator", width: 400, height: 260, resizable: false do
+Shoes.app title: "Ooyala Analytics Report Generator", width: 400, height: 300, resizable: false do
   current_date = DateTime.now
   @root_stack = stack margin:0.05 do
     para "Start Date"
@@ -19,10 +19,13 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 400, height: 260, r
       @end_month_box = list_box items: (1..12).to_a, width:60, choose: current_date.month.to_i
       @end_year_box = list_box items: (2013..current_date.year.to_i).to_a, width:100, choose: current_date.year.to_i
     end
+    flow do
+      @v2_analytics_check = check
+      para "Use v2 analytics"
+    end
+
     @error_status = para "", stroke:red
     @generation_status = para ""
-    # TODO: Implement progress bar.
-    #@p = progress width: 1.0
     
     # TODO: Use change handler for start date and end date to enable this button once we have valid dates?
     @report_button = button "Generate Report", width:1.0
@@ -52,16 +55,10 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 400, height: 260, r
 
       # Assuming we're now through all the validation steps successfully, so clear any previous error.
       @error_status.text = ""
-
       @generation_status.text = "Generating Report, please wait."
       reporter = ReportGenerator.new
-      reporter.runReport(start_date.to_s, end_date.to_s)
+      reporter.runReport(start_date.to_s, end_date.to_s, @v2_analytics_check.checked?, "")
       @generation_status.text = "Done! CSV saved to output folder."
     end
-    # Sample progress bar animation code
-    # TODO: Implement progress bar.
-    #animate do |i|
-    #   @p.fraction = (i % 100) / 100.0
-    #end
   end
 end
