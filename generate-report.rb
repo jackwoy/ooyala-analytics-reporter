@@ -24,6 +24,10 @@ begin
     opts.on("-p extra_params", "--params", "Include extra parameters. Cannot be used with v2 analytics.") do |p|
       options[:extra_params] = p
     end
+
+    opts.on("-c custom_config", "--config", "Specify a config file.") do |c|
+      options[:config] = c
+    end
   end.parse!
 rescue OptionParser::InvalidOption => s
   puts s
@@ -37,6 +41,11 @@ if !options.has_key?(:from_date)
   exit(1)
 elsif !options.has_key?(:to_date)
   puts "To Date is required"
+  exit(1)
+end
+
+if options.has_key?(:config) && !File.exist?(options[:config])
+  puts "Specified config file %{filename} not found." % {filename: options[:config]}
   exit(1)
 end
 
