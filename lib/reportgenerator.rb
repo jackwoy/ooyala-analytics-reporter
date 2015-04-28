@@ -16,6 +16,10 @@ class ReportGenerator
     else
       config_filename = 'config.yaml'
     end
+    if !validateConfig(config_filename)
+      puts "Specified config file %{filename} failed validation." % {filename: config_filename}
+      exit(2)
+    end
     return YAML.load_file(config_filename)
   end
 
