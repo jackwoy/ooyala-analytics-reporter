@@ -23,6 +23,14 @@ class ReportGenerator
     return YAML.load_file(config_filename)
   end
 
+  def getCustomConfig(config_filename)
+    if !validateConfig(config_filename)
+      puts "Specified config file %{filename} failed validation." % {filename: config_filename}
+      exit(2)
+    end
+    return YAML.load_file(config_filename)
+  end
+
   # Date inputs expected as string representations of dates
   def calculateDaysDifference(start_date_string, end_date_string)
     from = Date.parse(start_date_string)
@@ -32,7 +40,15 @@ class ReportGenerator
 
   def runReport(start_date_string, end_date_string, v2_analytics, extra_params, config_filename)
     daysDifference = calculateDaysDifference(start_date_string,end_date_string)
-    config_vars = getConfig()
+    
+    config_vars = {}
+    
+    # Should be able to combine getCustomConfig/getConfig methods.
+    if (config_filename == nil)
+      config_vars = getConfig()
+    else
+      config_vars = getCustomConfig(config_filename)
+    end
     
     # Check whether the output folder exists. Create it if it does not.
     output_folder = config_vars['output_folder']
