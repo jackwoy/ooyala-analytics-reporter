@@ -2,28 +2,54 @@ Shoes.setup do
   gem 'rest-client'
 end
 require 'date'
+require 'yaml'
 require './lib/reportgenerator'
 
-Shoes.app title: "Ooyala Analytics Report Generator", width: 400, height: 300, resizable: false do
+# TODO: Config may need refactored into its own class.
+def getConfig()
+  if File.exist?('config.local.yaml')
+    return 'config.local.yaml'
+  else
+    return 'config.yaml'
+  end
+end
+
+def getConfigName(config_filename)
+  config_hash = YAML.load_file(config_filename)
+  return config_hash["name"]
+end
+
+Shoes.app title: "Ooyala Analytics Report Generator", width: 600, height: 300, resizable: false do
+  loaded_config = getConfig()
   current_date = DateTime.now
   @root_stack = stack margin:0.05 do
-    para "Start Date"
     flow do
-      @start_day_box = list_box items: (1..31).to_a, width:60, choose: current_date.day.to_i
-      @start_month_box = list_box items: (1..12).to_a, width:60, choose: current_date.month.to_i
-      @start_year_box = list_box items: (2013..current_date.year.to_i).to_a, width:100, choose: current_date.year.to_i
+      stack width: 250 do
+        para "Start Date"
+        flow do
+          # TODO: Date picker seems a good candidate to split out into its own class.
+          @start_day_box = list_box items: (1..31).to_a, width:60, choose: current_date.day.to_i
+          @start_month_box = list_box items: (1..12).to_a, width:60, choose: current_date.month.to_i
+          @start_year_box = list_box items: (2013..current_date.year.to_i).to_a, width:100, choose: current_date.year.to_i
+        end
+        para "End Date"
+        flow do 
+          @end_day_box = list_box items: (1..31).to_a, width:60, choose: current_date.day.to_i
+          @end_month_box = list_box items: (1..12).to_a, width:60, choose: current_date.month.to_i
+          @end_year_box = list_box items: (2013..current_date.year.to_i).to_a, width:100, choose: current_date.year.to_i
+        end
+      end
+      stack width: 250 do
+        para "Options"
+        flow do
+          @v2_analytics_check = check
+          para "Use v2 analytics"
+        end
+        para "Configuration File"
+        @config_status = para "Using config %{config_name}" % { config_name: getConfigName(loaded_config) }
+        @config_button = button "Change Config", width:1.0
+      end
     end
-    para "End Date"
-    flow do 
-      @end_day_box = list_box items: (1..31).to_a, width:60, choose: current_date.day.to_i
-      @end_month_box = list_box items: (1..12).to_a, width:60, choose: current_date.month.to_i
-      @end_year_box = list_box items: (2013..current_date.year.to_i).to_a, width:100, choose: current_date.year.to_i
-    end
-    flow do
-      @v2_analytics_check = check
-      para "Use v2 analytics"
-    end
-
     @error_status = para "", stroke:red
     @generation_status = para ""
     
@@ -57,8 +83,15 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 400, height: 300, r
       @error_status.text = ""
       @generation_status.text = "Generating Report, please wait."
       reporter = ReportGenerator.new
-      reporter.runReport(start_date.to_s, end_date.to_s, @v2_analytics_check.checked?, "")
+      reporter.runReport(start_date.to_s, end_date.to_s, @v2_analytics_check.checked?, "", loaded_config)
       @generation_status.text = "Done! CSV saved to output folder."
+    end
+
+    @config_button.click do
+      config_filename = ask_open_file
+      # TODO: validate new config file first...
+      loaded_config = config_filename
+      @config_status.text = "Using config %{config_name}" % { config_name: getConfigName(loaded_config) }
     end
   end
 end
