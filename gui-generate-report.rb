@@ -83,7 +83,7 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 600, height: 300, r
       @error_status.text = ""
       @generation_status.text = "Generating Report, please wait."
       reporter = ReportGenerator.new
-      reporter.runReport(start_date.to_s, end_date.to_s, @v2_analytics_check.checked?, "", loaded_config)
+      reporter.runReport(start_date.to_s, end_date.to_s, @v2_analytics_check.checked?, "", loaded_config, nil)
       @generation_status.text = "Done! CSV saved to output folder."
     end
 

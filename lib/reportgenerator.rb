@@ -38,7 +38,7 @@ class ReportGenerator
     return to - from
   end
 
-  def runReport(start_date_string, end_date_string, v2_analytics, extra_params, config_filename)
+  def runReport(start_date_string, end_date_string, v2_analytics, extra_params, config_filename, output_filename)
     daysDifference = calculateDaysDifference(start_date_string,end_date_string)
     
     config_vars = {}
@@ -57,8 +57,13 @@ class ReportGenerator
       Dir.mkdir(output_folder)
     end
 
-    jsonFilename = "%{output}/analytics_results_%{from}-to-%{to}.json" % { output: output_folder, from:start_date_string, to:end_date_string }
-    csvFilename = "%{output}/csv_analytics_results_%{from}-to-%{to}.csv" % { output: output_folder, from:start_date_string, to:end_date_string }
+    if (output_filename == nil)
+      jsonFilename = "%{output}/analytics_results_%{from}-to-%{to}.json" % { output: output_folder, from:start_date_string, to:end_date_string }
+      csvFilename = "%{output}/csv_analytics_results_%{from}-to-%{to}.csv" % { output: output_folder, from:start_date_string, to:end_date_string }
+    else
+      jsonFilename = "%{output}/%{custom}.json" % { output: output_folder, custom:output_filename }
+      csvFilename = "%{output}/%{custom}.csv" % { output: output_folder, custom:output_filename }
+    end
 
     if(v2_analytics)
       analytics = AnalyticsToJSON.new(config_vars['api_key'],config_vars['api_secret'])

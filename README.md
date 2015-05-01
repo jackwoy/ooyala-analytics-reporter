@@ -15,7 +15,12 @@ This version is likely to be a little rough around the edges, but easier to use 
 
 The script is currently set up to default to generating reports from Ooyala's IQ analytics system. To force the script to generate reports using Ooyala's V2 analytics system instead, simply include either the -o or the --old command line argument when running generate-report.rb.
 
+**Custom Output Filenames**
+
+If you want to specify a custom filename for your output, just use the -O or Output command line argument when running generate-report.rb.
+
 **Optional Extra Parameters**
+
 When using v3 analytics, there is now limited support for additional parameters in the script. This is strictly an experimental feature, and will cause the script to throw errors if any parameters are passed to the script which substantially change the format of the data returned from the API for processing.
 
 For example, the `filters` parameter will work fine, as it restricts but does not modify the dataset returned. `dimensions` on the other hand will change the reporting structure, and cause the JSON to CSV step to freak out. An upgrade to the CSV generator to handle this sort of thing is pending.

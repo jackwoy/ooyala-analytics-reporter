@@ -28,6 +28,10 @@ begin
     opts.on("-c custom_config", "--config", "Specify a config file.") do |c|
       options[:config] = c
     end
+
+    opts.on("-O custom_output_filename", "--Output", "Specify a custom output filename.") do |custom_output|
+      options[:output] = custom_output
+    end
   end.parse!
 rescue OptionParser::InvalidOption => s
   puts s
@@ -56,4 +60,4 @@ end
 
 reporter = ReportGenerator.new
 # FIXME: Should probably refactor this. Adding more arguments to the runReport method isn't a great way of doing things.
-reporter.runReport(options[:from_date],options[:to_date],options[:v2_analytics],options[:extra_params],options[:config])
+reporter.runReport(options[:from_date],options[:to_date],options[:v2_analytics],options[:extra_params],options[:config], options[:output])
