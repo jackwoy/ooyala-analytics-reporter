@@ -1,16 +1,8 @@
 require 'yaml'
 
-class Config
+class AppConfig
 
-	def initialize(default)
-		@@default = default
-	end
-
-	def getConfig()
-		return getCustomConfig(@@default)
-	end
-
-	def getCustomConfig(config_filename)
+	def getConfig(config_filename)
 		if !validateConfig(config_filename)
 		  puts "Specified config file %{filename} failed validation." % {filename: config_filename}
 		  exit(2)
