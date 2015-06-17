@@ -2,25 +2,13 @@ Shoes.setup do
   gem 'rest-client'
 end
 require 'date'
-require 'yaml'
+require './lib/appconfig'
 require './lib/reportgenerator'
 
-# TODO: Config may need refactored into its own class.
-def getConfig()
-  if File.exist?('config.local.yaml')
-    return 'config.local.yaml'
-  else
-    return 'config.yaml'
-  end
-end
-
-def getConfigName(config_filename)
-  config_hash = YAML.load_file(config_filename)
-  return config_hash["name"]
-end
-
 Shoes.app title: "Ooyala Analytics Report Generator", width: 600, height: 300, resizable: false do
-  loaded_config = getConfig()
+  config = AppConfig.new
+  loaded_config = "config.yaml"
+  config_hash = config.getConfig(loaded_config)
   current_date = DateTime.now
   @root_stack = stack margin:0.05 do
     flow do
@@ -46,7 +34,7 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 600, height: 300, r
           para "Use v2 analytics"
         end
         para "Configuration File"
-        @config_status = para "Using config %{config_name}" % { config_name: getConfigName(loaded_config) }
+        @config_status = para "Using config %{config_name}" % { config_name: config_hash["name"] }
         @config_button = button "Change Config", width:1.0
       end
     end
@@ -91,7 +79,8 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 600, height: 300, r
       config_filename = ask_open_file
       # TODO: validate new config file first...
       loaded_config = config_filename
-      @config_status.text = "Using config %{config_name}" % { config_name: getConfigName(loaded_config) }
+      config_hash = config.getConfig(loaded_config)
+      @config_status.text = "Using config %{config_name}" % { config_name: config_hash["name"] }
     end
   end
 end
