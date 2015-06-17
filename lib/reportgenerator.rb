@@ -32,8 +32,8 @@ class ReportGenerator
       jsonFilename = "%{output}/analytics_results_%{from}-to-%{to}.json" % { output: output_folder, from:start_date_string, to:end_date_string }
       csvFilename = "%{output}/csv_analytics_results_%{from}-to-%{to}.csv" % { output: output_folder, from:start_date_string, to:end_date_string }
     else
-      jsonFilename = "%{output}/%{custom}.json" % { output: output_folder, custom:output_filename }
-      csvFilename = "%{output}/%{custom}.csv" % { output: output_folder, custom:output_filename }
+      jsonFilename = "%{custom}.json" % { custom:output_filename }
+      csvFilename = "%{custom}.csv" % { custom:output_filename }
     end
 
     if(v2_analytics)
