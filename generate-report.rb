@@ -6,6 +6,7 @@ options = {}
 begin
   OptionParser.new do |opts|
     options[:v2_analytics] = false
+    options[:config] = "config.yaml"
 
     opts.banner = "Usage: generate-report.rb -s <start_date> -e <end_date> -o"
 
