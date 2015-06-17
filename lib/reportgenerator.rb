@@ -1,4 +1,4 @@
-require 'yaml'
+require './lib/appconfig'
 require './lib/analyticstojson'
 require './lib/analyticsv3tojson'
 require 'date'
@@ -6,30 +6,6 @@ require './lib/analyticsjsontocsv'
 require './lib/analyticsv3jsontocsv'
 
 class ReportGenerator
-
-  # Hacky way of handling custom config. Mainly done for repository management purposes to reduce likelihood of API credentials being committed.
-  # System will use config.local.yaml (which isn't checked in) preferentially to config.yaml (which is).
-  def getConfig()
-    config_filename = ""
-    if File.exist?('config.local.yaml')
-      config_filename = 'config.local.yaml'
-    else
-      config_filename = 'config.yaml'
-    end
-    if !validateConfig(config_filename)
-      puts "Specified config file %{filename} failed validation." % {filename: config_filename}
-      exit(2)
-    end
-    return YAML.load_file(config_filename)
-  end
-
-  def getCustomConfig(config_filename)
-    if !validateConfig(config_filename)
-      puts "Specified config file %{filename} failed validation." % {filename: config_filename}
-      exit(2)
-    end
-    return YAML.load_file(config_filename)
-  end
 
   # Date inputs expected as string representations of dates
   def calculateDaysDifference(start_date_string, end_date_string)
@@ -41,14 +17,9 @@ class ReportGenerator
   def runReport(start_date_string, end_date_string, v2_analytics, extra_params, config_filename, output_filename)
     daysDifference = calculateDaysDifference(start_date_string,end_date_string)
     
+    config = AppConfig.new
     config_vars = {}
-    
-    # Should be able to combine getCustomConfig/getConfig methods.
-    if (config_filename == nil)
-      config_vars = getConfig()
-    else
-      config_vars = getCustomConfig(config_filename)
-    end
+    config_vars = config.getConfig(config_filename)
     
     # Check whether the output folder exists. Create it if it does not.
     output_folder = config_vars['output_folder']
