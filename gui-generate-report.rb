@@ -81,7 +81,6 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 600, height: 500, r
 
     @config_button.click do
       config_filename = ask_open_file
-      # TODO: validate new config file first...
       if config.validateConfig(config_filename)
         loaded_config = config_filename
         config_hash = config.getConfig(loaded_config)
