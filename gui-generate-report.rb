@@ -78,9 +78,13 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 600, height: 300, r
     @config_button.click do
       config_filename = ask_open_file
       # TODO: validate new config file first...
-      loaded_config = config_filename
-      config_hash = config.getConfig(loaded_config)
-      @config_status.text = "Using config %{config_name}" % { config_name: config_hash["name"] }
+      if config.validateConfig(config_filename)
+        loaded_config = config_filename
+        config_hash = config.getConfig(loaded_config)
+        @config_status.text = "Using config %{config_name}" % { config_name: config_hash["name"] }
+      else
+        alert("Invalid config file selected.")
+      end
     end
   end
 end
