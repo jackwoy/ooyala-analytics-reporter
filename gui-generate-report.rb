@@ -5,9 +5,10 @@ require 'date'
 require './lib/appconfig'
 require './lib/reportgenerator'
 
-Shoes.app title: "Ooyala Analytics Report Generator", width: 600, height: 300, resizable: false do
+Shoes.app title: "Ooyala Analytics Report Generator", width: 600, height: 500, resizable: true do
   config = AppConfig.new
-  loaded_config = "config.yaml"
+  loaded_config = "config.local.yaml"
+  custom_output_filename = ""
   config_hash = config.getConfig(loaded_config)
   current_date = DateTime.now
   @root_stack = stack margin:0.05 do
@@ -36,6 +37,9 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 600, height: 300, r
         para "Configuration File"
         @config_status = para "Using config %{config_name}" % { config_name: config_hash["name"] }
         @config_button = button "Change Config", width:1.0
+        para "Output Folder"
+        @output_status = para "Using default output filename"
+        @output_button = button "Change Output Filename", width:1.0
       end
     end
     @error_status = para "", stroke:red
@@ -71,7 +75,7 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 600, height: 300, r
       @error_status.text = ""
       @generation_status.text = "Generating Report, please wait."
       reporter = ReportGenerator.new
-      reporter.runReport(start_date.to_s, end_date.to_s, @v2_analytics_check.checked?, "", loaded_config, nil)
+      reporter.runReport(start_date.to_s, end_date.to_s, @v2_analytics_check.checked?, "", loaded_config, custom_output_filename)
       @generation_status.text = "Done! CSV saved to output folder."
     end
 
@@ -85,6 +89,10 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 600, height: 300, r
       else
         alert("Invalid config file selected.")
       end
+    end
+    @output_button.click do
+      custom_output_filename = ask_save_file
+      @output_status.text = "Using output file %{config_output}" % { config_output: custom_output_filename }
     end
   end
 end
