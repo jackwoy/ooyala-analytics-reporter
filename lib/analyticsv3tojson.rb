@@ -32,7 +32,7 @@ class AnalyticsV3ToJSON
 		uriForSig = uri.slice(0..(uri.index('?')-1))
 		uriForParams = uri.slice((uri.index('?')+1)..uri.length)
 
-		expires = Time.local(t.year, t.mon, t.day, t.hour + 1).to_i
+		expires = (t+1*60*60).utc.to_i
 		# FIXME: Better than it was, but still not great. Could make some performance savings by not regenerating this hash every time.
 		params = hashifyParameterString(uriForParams)
 		params["api_key"] = @@api_key
