@@ -8,7 +8,7 @@ require './lib/reportgenerator'
 Shoes.app title: "Ooyala Analytics Report Generator", width: 600, height: 500, resizable: true do
   config = AppConfig.new
   loaded_config = "config.local.yaml"
-  custom_output_filename = ""
+  custom_output_filename = nil
   config_hash = config.getConfig(loaded_config)
   current_date = DateTime.now
   @root_stack = stack margin:0.05 do
