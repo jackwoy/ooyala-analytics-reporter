@@ -48,4 +48,39 @@ class AnalyticsV3JSONtoCSV
 			end
 		end
 	end
+
+	def custom_csv_from_file(in_file, out_file, number_days, metrics)
+		csvHeaders = ['Name', 'Embed Code']
+		csvHeaders.concat(metrics)
+		file = File.read(in_file)
+		data_hash = JSON.parse(file)
+
+		crunchedArray = Array.new
+		# results 1 > result 0:n > data 0:1 > datum 0:n > group | metrics
+		data_hash['results'].each do |result|
+			result['data'].each do |datum|
+				video_hash = datum.fetch("metrics",{})
+				name = datum.fetch("group").fetch("name")
+				embedCode = datum.fetch("group").fetch("asset")
+				displays = video_hash.fetch("displays",0)
+				innerArray = [name, embedCode]
+				metrics.each do |metric|
+					innerArray.push(video_hash.fetch(metric,0))
+				end
+				crunchedArray.push(innerArray)
+			end
+		end
+
+		# Sort array
+		sortedArray = crunchedArray.sort_by{|k|k[1]}.reverse
+
+		# Output numbers into CSV
+		CSV.open(out_file, "wb") do |csv|
+			csv << csvHeaders
+			sortedArray.each do |line|
+				csv << line
+			end
+		end
+	end
+
 end
