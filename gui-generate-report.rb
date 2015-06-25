@@ -29,6 +29,9 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 600, height: 500, r
         end
         para "Custom metrics"
         @custom_metrics = edit_line
+
+        para "Extra Parameters"
+        @extra_params = edit_line
       end
       stack width: 250 do
         para "Options"
@@ -84,8 +87,15 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 600, height: 500, r
         metrics_text = @custom_metrics.text.split(',')
       end
 
+      extra_params_text = nil
+
+      # FIXME: Improve this rubbish. Late, tired, and rushed. Not a good combo for coding.
+      if @extra_params.text.strip.length > 0
+        extra_params_text = @extra_params.text
+      end
+
       reporter = ReportGenerator.new
-      reporter.runReport(start_date.to_s, end_date.to_s, @v2_analytics_check.checked?, "", loaded_config, custom_output_filename, metrics_text)
+      reporter.runReport(start_date.to_s, end_date.to_s, @v2_analytics_check.checked?, extra_params_text, loaded_config, custom_output_filename, metrics_text)
       @generation_status.text = "Done! CSV saved to output folder."
     end
 
