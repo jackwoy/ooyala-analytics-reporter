@@ -22,6 +22,10 @@ begin
       options[:v2_analytics] = true
     end
 
+    opts.on("-m metrics", "--metrics", "Specify metrics to report on. Must be comma-separated, without spaces (e.g. autoplays,displays,emails_sent) Cannot be used with v2 analytics.") do |m|
+      options[:metrics] = m.split(',')
+    end
+
     opts.on("-p extra_params", "--params", "Include extra parameters. Cannot be used with v2 analytics.") do |p|
       options[:extra_params] = p
     end
@@ -56,6 +60,11 @@ end
 
 if options[:v2_analytics] && options.has_key?(:extra_params)
   puts "Cannot include extra parameters in V2 analytics."
+  exit(1)
+end
+
+if options[:v2_analytics] && options.has_key?(:metrics)
+  puts "Cannot specify metrics in V2 analytics."
   exit(1)
 end
 
