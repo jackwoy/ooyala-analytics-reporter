@@ -47,7 +47,11 @@ class ReportGenerator
     puts "Generating JSON"
     analytics.getReport(start_date_string,end_date_string, jsonFilename)
     puts "Parsing to CSV"
-    csvOut.csvFromFile(jsonFilename,csvFilename,daysDifference.to_i+1)
+    if (custom_metrics == nil)
+      csvOut.csvFromFile(jsonFilename,csvFilename,daysDifference.to_i+1)
+    else
+      csvOut.custom_csv_from_file(jsonFilename,csvFilename,daysDifference.to_i+1,custom_metrics)
+    end
     puts "Done!"
   end
 end
