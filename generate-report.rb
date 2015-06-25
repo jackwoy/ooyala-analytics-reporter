@@ -70,4 +70,4 @@ end
 
 reporter = ReportGenerator.new
 # FIXME: Should probably refactor this. Adding more arguments to the runReport method isn't a great way of doing things.
-reporter.runReport(options[:from_date],options[:to_date],options[:v2_analytics],options[:extra_params],options[:config], options[:output])
+reporter.runReport(options[:from_date],options[:to_date],options[:v2_analytics],options[:extra_params],options[:config], options[:output], options[:metrics])

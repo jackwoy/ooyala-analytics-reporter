@@ -14,9 +14,8 @@ class ReportGenerator
     return to - from
   end
 
-  def runReport(start_date_string, end_date_string, v2_analytics, extra_params, config_filename, output_filename)
+  def runReport(start_date_string, end_date_string, v2_analytics, extra_params, config_filename, output_filename, custom_metrics)
     daysDifference = calculateDaysDifference(start_date_string,end_date_string)
-    
     config = AppConfig.new
     config_vars = {}
     config_vars = config.getConfig(config_filename)
