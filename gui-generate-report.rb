@@ -27,6 +27,8 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 600, height: 500, r
           @end_month_box = list_box items: (1..12).to_a, width:60, choose: current_date.month.to_i
           @end_year_box = list_box items: (2013..current_date.year.to_i).to_a, width:100, choose: current_date.year.to_i
         end
+        para "Custom metrics"
+        @custom_metrics = edit_line
       end
       stack width: 250 do
         para "Options"
@@ -74,8 +76,16 @@ Shoes.app title: "Ooyala Analytics Report Generator", width: 600, height: 500, r
       # Assuming we're now through all the validation steps successfully, so clear any previous error.
       @error_status.text = ""
       @generation_status.text = "Generating Report, please wait."
+
+      metrics_text = nil
+
+      # FIXME: Improve this rubbish. Late, tired, and rushed. Not a good combo for coding.
+      if @custom_metrics.text.strip.length > 0
+        metrics_text = @custom_metrics.text.split(',')
+      end
+
       reporter = ReportGenerator.new
-      reporter.runReport(start_date.to_s, end_date.to_s, @v2_analytics_check.checked?, "", loaded_config, custom_output_filename)
+      reporter.runReport(start_date.to_s, end_date.to_s, @v2_analytics_check.checked?, "", loaded_config, custom_output_filename, metrics_text)
       @generation_status.text = "Done! CSV saved to output folder."
     end
 
