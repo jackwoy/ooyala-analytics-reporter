@@ -4,7 +4,7 @@ require 'csv'
 
 class AnalyticsJSONtoCSV
 	def csvFromFile(inFile, outFile, number_days)
-		csvHeaders = ["Video Title","Plays","Avg. Unique Users / Day","Avg. Videos / User / Day","Video Conversion Rate","Hours Delivered","Avg. Time Watched / Video"]
+		csvHeaders = ["Video Title","Plays","Avg. Unique Users / Day","Avg. Videos / User / Day","Video Conversion Rate","Hours Delivered","Avg. Time Watched / Video","Embed Code"]
 
 		# Crunch numbers for derived statistics
 		file = File.read(inFile)
@@ -27,7 +27,8 @@ class AnalyticsJSONtoCSV
 			# avg_time_watched_per_video is expressed as hh:mm:ss in output from Backlot, so easiest to convert to seconds and format the result.
 			avg_time_watched_per_video_seconds = plays > 0 ? time_watched_microseconds/1000/plays : 0
 			avg_time_watched_per_video_formatted = Time.at(avg_time_watched_per_video_seconds).utc.strftime("%H:%M:%S")
-			crunchedArray.push([name,plays,avg_unique_user_per_day.round(2),avg_vid_per_user_per_day.round(2),video_conversion_rate.round(2),hours_delivered.round(2),avg_time_watched_per_video_formatted])
+			embed_code = result.fetch("movie_data",{}).fetch("embed_code","")
+			crunchedArray.push([name,plays,avg_unique_user_per_day.round(2),avg_vid_per_user_per_day.round(2),video_conversion_rate.round(2),hours_delivered.round(2),avg_time_watched_per_video_formatted,embed_code])
 		end
 
 		# Sort array
