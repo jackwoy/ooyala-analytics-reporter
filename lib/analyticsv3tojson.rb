@@ -141,12 +141,67 @@ class AnalyticsV3ToJSON
 		if outFileName == nil
 			outFileName = "analytics_results.json"
 		end
-		# If customer wants stats between day X and day Y, we need to set an end date of Y+1. Our analytics are quirky.
-		url = "/v3/analytics/reports?report_type=performance&dimensions=asset&start_date=%{from}&end_date=%{to}" % { from: fromDate.to_s, to: (toDate+1).to_s }
-		json_hash = getPages(url)
+		
+		# Calculate number of days between start date and end date.
+		daysDelta = (toDate - fromDate).to_i
+
+		json_hash = nil
+		
+		# Do some jiggery-pokery to gloss over the fact that analytics queries are restricted to 365 days length...
+		if daysDelta > 365
+			puts "uh oh"
+			json_hash = circumventQueryLimit(fromDate,toDate)
+		else
+			url = buildAPIUrl(fromDate, toDate)
+			json_hash = getPages(url)
+		end
+
 		File.open(outFileName, "w") do |outfile|
 			outfile.write(JSON.pretty_generate(json_hash))
 			outfile.close
 		end
+	end
+
+	def circumventQueryLimit(fromDate, toDate)
+		remaining = (toDate - fromDate).to_i
+
+		response_hash = nil
+		merged_hash = nil
+		modFromDate = nil
+		modToDate = nil
+
+		begin
+
+			if remaining >= 365
+				if modFromDate == nil
+					modFromDate = fromDate
+				else
+					modFromDate = modFromDate + 365
+				end
+				modToDate = modFromDate + 365
+				remaining = remaining - 365
+			else
+				modFromDate = modToDate + 1
+				modToDate = toDate
+				remaining = 0
+			end
+			puts "Starting query batch %{from} to %{to}" % {from: modFromDate, to: modToDate}
+			url = buildAPIUrl(modFromDate, modToDate)
+			response_hash = getPages(url)
+
+			if merged_hash == nil
+				merged_hash = response_hash
+			else
+				mergeHashes(response_hash,merged_hash)
+			end
+
+		end until remaining <= 0
+		puts remaining
+		return merged_hash
+	end
+
+	def buildAPIUrl(fromDate, toDate)
+		# If customer wants stats between day X and day Y, we need to set an end date of Y+1. Our analytics are quirky.
+		return "/v3/analytics/reports?report_type=performance&dimensions=asset&start_date=%{from}&end_date=%{to}" % { from: fromDate.to_s, to: (toDate+1).to_s }
 	end
 end
